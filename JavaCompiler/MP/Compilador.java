@@ -1,3 +1,7 @@
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.BufferedOutputStream;
+
 class Compilador {
 
 	public static void main(String[] args) {
@@ -14,6 +18,15 @@ class Compilador {
 			String codigo = backend.geraCodigo(arv);
 			System.out.println(codigo);
 
+			File instructions = new File("arquivoDeEntrada");
+			FileOutputStream fileOutputStream = new FileOutputStream(instructions);
+			BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+
+			byte[] codeBytes = codigo.getBytes();
+
+			bufferedOutputStream.write(codeBytes);
+			bufferedOutputStream.close();
+			fileOutputStream.close();
 		} catch (Exception e) {
 			System.out.println("Erro de compilação:\n" + e);
 		}
