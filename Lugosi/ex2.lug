@@ -1,0 +1,71 @@
+main
+{
+	var bool positivo := false;
+	var int num1 := 67;
+	var int num2 := -44;
+	var int num3 := 89; 
+	
+	if((num1 > 0) && (num2 > 0) || (num3 > 0))
+	{
+		print(2);	
+	}
+
+	if(num1 > 0)
+	{	
+		positivo := true;
+		print(positivo);
+	}
+	else
+	{
+		positivo := false;
+		print(positivo);
+		
+		while(num1 < 0)
+		{
+			num1 := num1 + 1;
+		}
+		
+		num1 := num1 + 1;
+		positivo := true;
+		print(positivo);
+	}
+	if(num2 > 0)
+	{
+		positivo := true;
+		print(positivo);
+	}
+	else
+	{
+		positivo := false;
+		print(positivo);
+		
+		while(num2 < 0)
+		{
+			num2 := num2 + 1;
+		}
+		
+		num2 := num2 + 1;
+		positivo := true;
+		print(positivo);
+	}
+	if(num3 > 0)
+	{
+		positivo := true;  
+		print(positivo);
+	}
+	else
+	{
+		positivo := false;
+		print(positivo);
+		
+		while(num3 < 0)
+		{
+			num3 := num3 + 1;
+		}
+		
+		num3 := num3 + 1;
+		positivo := true;
+		print(positivo);
+	}
+
+}

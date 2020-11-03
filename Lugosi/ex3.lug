@@ -1,0 +1,9 @@
+main
+{
+	var int B := 2;
+	var int b := 4;
+	var int h := 9;
+	var int Area_Trapezio := ((B+b)/2)*h;
+	
+	print(Area_Trapezio)
+}
