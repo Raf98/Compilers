@@ -45,13 +45,27 @@ public interface LugosiConstants {
   /** RegularExpression Id. */
   int TIPOD = 22;
   /** RegularExpression Id. */
-  int PRESV = 23;
+  int VAR = 23;
   /** RegularExpression Id. */
-  int BVAL = 24;
+  int PRINT = 24;
   /** RegularExpression Id. */
-  int NUM = 25;
+  int RETURN = 25;
   /** RegularExpression Id. */
-  int ID = 26;
+  int FUNCTION = 26;
+  /** RegularExpression Id. */
+  int IF = 27;
+  /** RegularExpression Id. */
+  int ELSE = 28;
+  /** RegularExpression Id. */
+  int DO = 29;
+  /** RegularExpression Id. */
+  int WHILE = 30;
+  /** RegularExpression Id. */
+  int BVAL = 31;
+  /** RegularExpression Id. */
+  int NUM = 32;
+  /** RegularExpression Id. */
+  int ID = 33;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -81,7 +95,14 @@ public interface LugosiConstants {
     "\">\"",
     "\"==\"",
     "<TIPOD>",
-    "<PRESV>",
+    "\"var\"",
+    "\"print\"",
+    "\"return\"",
+    "\"function\"",
+    "\"if\"",
+    "\"else\"",
+    "\"do\"",
+    "\"while\"",
     "<BVAL>",
     "<NUM>",
     "<ID>",
