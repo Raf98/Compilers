@@ -55,17 +55,15 @@ public interface LugosiConstants {
   /** RegularExpression Id. */
   int IF = 27;
   /** RegularExpression Id. */
-  int ELSE = 28;
+  int DO = 28;
   /** RegularExpression Id. */
-  int DO = 29;
+  int WHILE = 29;
   /** RegularExpression Id. */
-  int WHILE = 30;
+  int BVAL = 30;
   /** RegularExpression Id. */
-  int BVAL = 31;
+  int NUM = 31;
   /** RegularExpression Id. */
-  int NUM = 32;
-  /** RegularExpression Id. */
-  int ID = 33;
+  int ID = 32;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -100,7 +98,6 @@ public interface LugosiConstants {
     "\"return\"",
     "\"function\"",
     "\"if\"",
-    "\"else\"",
     "\"do\"",
     "\"while\"",
     "<BVAL>",

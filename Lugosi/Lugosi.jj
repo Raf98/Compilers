@@ -50,14 +50,13 @@ TOKEN:
 
 | <TIPOD: "bool" | "int" | "void" | "float">
 
-/*| <PRESV: "var" | "print" | "return" | "function" | "if" | "else" 
+/*| <PRESV: "var" | "print" | "return" | "function" | "if" 
 	| "do" | "while">*/
 | <VAR: "var">
 | <PRINT: "print">
 | <RETURN: "return">
 | <FUNCTION: "function">
 | <IF: "if">
-| <ELSE: "else">
 | <DO: "do">
 | <WHILE: "while">
 
@@ -91,7 +90,6 @@ void Lugosi () :
 | <RETURN> { System.out.println("Palavra reservada: return");}
 | <FUNCTION> { System.out.println("Palavra reservada: function");}
 | <IF> { System.out.println("Palavra reservada: if");}
-| <ELSE> { System.out.println("Palavra reservada: else");}
 | <DO> { System.out.println("Palavra reservada: do");}
 | <WHILE> { System.out.println("Palavra reservada: while");}
 
@@ -138,7 +136,7 @@ void Main () :
 
 }
 
-//VARDECL -> VARDECL "var" TIPO TOKEN_id ";" | vazio
+//VARDECL -> "var" TIPO TOKEN_id ";" VARDECL | vazio
 void VarDecl () :
 {}
 {

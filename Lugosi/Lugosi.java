@@ -31,7 +31,7 @@ public class Lugosi implements LugosiConstants {
     jj_consume_token(FCHAVES);
   }
 
-//VARDECL -> VARDECL "var" TIPO TOKEN_id ";" | vazio
+//VARDECL -> "var" TIPO TOKEN_id ";" VARDECL | vazio
   static final public void VarDecl() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case VAR:
@@ -380,10 +380,10 @@ public class Lugosi implements LugosiConstants {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x4000000,0x800000,0x6b000000,0x6b000000,0x80000100,0x900,0x80000100,0x80000000,0x80000100,0x100,0x3fe000,0x1000,0x400000,0x400000,0x4000000,0x1000,};
+      jj_la1_0 = new int[] {0x4000000,0x800000,0x3b000000,0x3b000000,0xc0000100,0x900,0xc0000100,0xc0000000,0xc0000100,0x100,0x3fe000,0x1000,0x400000,0x400000,0x4000000,0x1000,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x2,0x2,0x3,0x0,0x3,0x3,0x3,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_1 = new int[] {0x0,0x0,0x1,0x1,0x1,0x0,0x1,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
 
   /** Constructor with InputStream. */
@@ -521,7 +521,7 @@ public class Lugosi implements LugosiConstants {
   /** Generate ParseException. */
   static public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[34];
+    boolean[] la1tokens = new boolean[33];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -538,7 +538,7 @@ public class Lugosi implements LugosiConstants {
         }
       }
     }
-    for (int i = 0; i < 34; i++) {
+    for (int i = 0; i < 33; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
