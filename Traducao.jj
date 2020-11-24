@@ -1,0 +1,53 @@
+PARSER_BEGIN(Traducao)
+import java.io.*;
+public class Traducao {
+
+  public static void main(String args[]) throws ParseException,IOException {
+    
+    Traducao parser = new Traducao(System.in);
+    parser.E();
+  }
+
+}
+
+PARSER_END(Traducao)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN:
+{
+<OPERADOR: ("+"| "-" | "*" | "/")>
+| 
+< NUM: ["0"-"9"] >
+}
+
+
+
+void E () :
+{}
+{ 
+  T() R()
+  <EOF> {System.out.println("");}
+}
+	
+
+void R():
+{Token t;}
+{
+  (t=<OPERADOR> T() {System.out.print(t.image+" ");} R())?
+}
+
+void T():
+{Token t;}
+{
+ t=<NUM> {System.out.print(t.image+" ");}
+}
+
+
+

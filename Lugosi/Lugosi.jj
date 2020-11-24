@@ -1,14 +1,30 @@
 PARSER_BEGIN(Lugosi)
 import java.io.*;
-public class Lugosi {
 
-  public static void main(String args[]) throws ParseException,IOException {
-    
- Lugosi analisador = new Lugosi(new FileInputStream(args[0]));
- analisador.Lugosi();
-  }
+  public static void main(String args[]) throws Exception{
+  // abrir o arquivo passado por linha
+  // de comando contento o código em Lugosi:
+    FileInputStream fs = new FileInputStream(new File(args[0]));
+
+    // Instanciar o parser da linguagem Lugosi passando
+    // como argumento o arquivo contendo o código
+    //Lugosi a ser processado:
+    Lugosi parser = new Lugosi(fs);
+
+    // Chamar a primeira regra do parser que irá
+    // analisar o código e devolver a árvore sintática
+    ArvoreLugosi arvore =parser.Lugosi();
+
+    // passar a árvore para o gerador de código
+    // que deve gerar um arquivo .java com o mesmo
+    //nome do arquivo de entrada
+    geraCodigo(arvore, args[0])
+}
+
+public static void geraCodigo(ArvoreLugosi prog, String arquivo){
 
 }
+
 
 PARSER_END(Lugosi)
 
