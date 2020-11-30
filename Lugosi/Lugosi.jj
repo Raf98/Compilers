@@ -1,9 +1,188 @@
 PARSER_BEGIN(Lugosi)
 import java.io.*;
+import java.util.ArrayList;
+
+class ArvoreLugosi{
+  Main main;
+  ArrayList<Function> functions;
+
+  ArvoreLugosi(Main main, ArrayList<Function> functions){
+    this.main = main;
+    this.functions = functions;
+  }
+}
+
+class Main(){
+  ArrayList<Comando> comandos;
+  ArrayList<VarDecl> varDecls;
+
+  ArvoreLugosi(ArrayList<VarDecl> varDecls, ArrayList<Comando> comandos){
+    this.varDecls = varDecls;
+    this.comandos = comandos;
+  }
+}
+
+class VarDecl{
+  String tipo;
+  String tokenID;
+
+  VarDecl(String tipo, String tokenID){
+    this.tipo = tipo;
+    this.tokenID = tokenID;
+  }
+}
+
+class Comando{}
+
+class Atrib extends Comando{
+
+  String tokenID;
+  Exp exp;
+  
+  Atrib (String tokenID, Exp exp)
+  {
+    this.tokenID=tokenID;
+    this.exp=exp;
+  }
+}
+
+class ListaExp extends Exp{
+  ArrayList<Exp> listaExp;
+
+  ListaExp (ArrayList<Exp> listaExp){
+    this.listaExp = listaExp;
+  }
+}
+
+class ChamadaDeFuncao extends Comando{ 
+  String tokenID;
+  ListaExp listaExp;
+  
+  Atrib (String tokenID, ListaExp listaExp)
+  {
+    this.tokenID=tokenID;
+    this.listaExp=listaExp;
+  }
+}
+
+class CondicionalIF extends Comando{
+  Exp exp;
+  ArrayList<Comando> comandosEscopoIF;
+
+  CondicionalIF (Exp exp, ArrayList<Comando> comandosEscopoIF){
+    this.exp = exp;
+    this.comandosEscopoIF = comandosEscopoIF;
+  }
+}
+
+class LacoWhile extends Comando{
+  Exp exp;
+  ArrayList<Comando> comandosEscopoWhile;
+
+  CondicionalIF (Exp exp, ArrayList<Comando> comandosEscopoWhile){
+    this.exp = exp;
+    this.comandosEscopoWhile = comandosEscopoWhile;
+  }
+}
+
+class LacoDoWhile extends Comando{
+  Exp exp;
+  ArrayList<Comando> comandosEscopoDoWhile;
+
+  CondicionalIF (Exp exp, ArrayList<Comando> comandosEscopoDoWhile){
+    this.exp = exp;
+    this.comandosEscopoDoWhile = comandosEscopoDoWhile;
+  }
+}
+ 
+class Return extends Comando{
+  Exp exp;
+
+  Return (Exp exp){
+    this.exp = exp;
+  }
+}
+
+class Print extends Comando{
+
+   Exp exp;
+   Print(Exp exp)
+   {this.exp = exp;}
+}
+
+class Exp{}
+
+class Fator extends Exp{}
+
+class VariavelID extends Fator{
+  String tokenID;
+
+  VariavelID(String tokenID){
+    this.tokenID = tokenID;
+  }  
+}
+
+class ChamadaDeFuncaoExp extends Fator{
+  ChamadaDeFuncao chamadaDeFuncaoExp;
+
+  ChamadaDeFuncaoExp(String tokenID, ListaExp listaExp){
+    chamadaDeFuncaoExp = new ChamadaDeFuncaoExp(tokenID, listaExp);
+  }
+}
+
+class Num extends Fator{
+  float num;
+
+  Num(float num)
+  {this.num = num;}
+
+}
+
+class BooleanValue extends Fator{
+  String trueOrFalse;
+
+  BooleanValue(String trueOrFalse)
+  {this.trueOrFalse = trueOrFalse;}
+}
+
+class Op{
+  String operation;
+
+  Op(String operation){
+    this.operation = operation;
+  }
+} 
+
+class Arg extends VarDecl{
+
+  Arg(String tipo, String tokenID){
+    super.VarDecl(tipo, tokenID)
+  }
+}
+
+class Function{
+  String tipo;
+  String tokenID;
+  ArrayList<Arg> listaArgs;
+  ArrayList<VarDecl> varDecls;
+  ArrayList<Comando> comandos;
+
+  Function( String tipo, String tokenID,
+            ArrayList<Arg> listaArgs,
+            ArrayList<VarDecl> varDecls,
+            ArrayList<Comando> comandos){
+    this.tipo = tipo;
+    this.tokenID = tokenID;
+    this.listaArgs = listaArgs;
+    this.varDecls = varDecls;
+    this.comandos = comandos;
+  }
+}
 
   public static void main(String args[]) throws Exception{
-  // abrir o arquivo passado por linha
-  // de comando contento o código em Lugosi:
+
+    // abrir o arquivo passado por linha
+    // de comando contendo o código em Lugosi:
     FileInputStream fs = new FileInputStream(new File(args[0]));
 
     // Instanciar o parser da linguagem Lugosi passando
@@ -93,50 +272,15 @@ TOKEN :
 
 
 
-void Lugosi () :
-{Token t;}
+ArvoreLugosi Lugosi () :
+{//Token t;
+  Main main = new Main();
+  ArrayList<Function> functions = new ArrayList<>();
+}
 {
-/*
-(
-  <MAIN> { System.out.println("Palavra reservada: main");}
-//| t=<PRESV> { System.out.println("Palavra reservada: " + t.image);}
 
-| <VAR> { System.out.println("Palavra reservada: var");}
-| <PRINT> { System.out.println("Palavra reservada: print");}
-| <RETURN> { System.out.println("Palavra reservada: return");}
-| <FUNCTION> { System.out.println("Palavra reservada: function");}
-| <IF> { System.out.println("Palavra reservada: if");}
-| <DO> { System.out.println("Palavra reservada: do");}
-| <WHILE> { System.out.println("Palavra reservada: while");}
+//Syntax-directed translation Parser
 
-| t=<BVAL> { System.out.println("Valor booleano: " + t.image);}
-| t =<TIPOD> { System.out.println("Tipo de dado: " + t.image);}
-| <ACHAVES> { System.out.println("Abre chaves: {");}
-| <FCHAVES> { System.out.println("Fecha chaves: }");}
-| t=<ID> { System.out.println("Identificador: "+ t.image);}
-| t=<NUM> { System.out.println("Número: "+ t.image);}
-| <VIRGULA> { System.out.println("Vírgula: ,");}
-| <PTOVIRGULA> { System.out.println("Ponto e vírgula: ;");}
-| <ATRIB> { System.out.println("Atribuição: :=");}
-| <APAREN> { System.out.println("Abre parênteses: (");}
-| <FPAREN> { System.out.println("Fecha parênteses: )");}
-
-| <ADD> { System.out.println("Sinal de adição: +");}
-| <SUB> { System.out.println("Sinal de subtração: -");}
-| <MULT> { System.out.println("Sinal de multiplicação: *");}
-| <DIV> { System.out.println("Sinal de divisão: /");}
-
-| <AND> { System.out.println("Sinal de operação binária AND: &&");}
-| <OR> { System.out.println("Sinal de operação binária OR: ||");}
-
-| <MENOR> { System.out.println("Sinal de comparação menor: <");}
-| <MAIOR> { System.out.println("Sinal de comparação maior: >");}
-| <IGUAL> { System.out.println("Sinal de comparação igual: ==");}
-)*
-<EOF> 
-*/
-
-//Parser
 
 // LUGOSI -> MAIN FUNC?
   Main() (Func())? <EOF> 
@@ -144,12 +288,13 @@ void Lugosi () :
 }
 
 //MAIN -> "main" "{" VARDECL SEQCOMANDOS "}"
-void Main () :
-{}
+Main Main () :
+{ ArrayList<VarDecl> varDecls = new ArrayList<>();
+  ArrayList<Comando> comandos = new ArrayList<>();}
 {
 
   <MAIN> <ACHAVES> VarDecl() SeqComandos() <FCHAVES> 
-
+  {return new Main(varDecls, comandos);}
 }
 
 //VARDECL -> "var" TIPO TOKEN_id ";" VARDECL | vazio
@@ -169,10 +314,12 @@ void Tipo () :
 }
 
 //SEQCOMANDOS -> COMANDO SEQCOMANDOS | vazio
-void SeqComandos () :
-{}
+ArrayList<Comando> SeqComandos (ArrayList<Comando> comandos) :
+{Comando comando;}
 {
-  (Comando() SeqComandos())?
+  (comando = Comando() {comandos.add(comando);} SeqComandos(comandos))?
+
+  {return comandos;}
 }
 
 /*COMANDO -> TOKEN_id TOKEN_idL
@@ -183,21 +330,41 @@ void SeqComandos () :
 | "print" "(" EXP ")" ";"
 */
 void Comando () :
-{}
+{ Token t = null; Exp e = null; Comando c = null; Comando result = null;
+  ArrayList<Comando> comandos = null;}
 {
-  ( <ID> TokenIDL() 
-  | "if" <APAREN> Exp() <FPAREN> <ACHAVES> SeqComandos() <FCHAVES> <PTOVIRGULA>
-  | "while" <APAREN> Exp() <FPAREN> "do" <ACHAVES> SeqComandos() <FCHAVES> 
-  | "do" <ACHAVES> SeqComandos() <FCHAVES> "while" <APAREN> Exp() <FPAREN>
-  | "return" Exp() <PTOVIRGULA>
-  | "print" <APAREN> Exp() <FPAREN> <PTOVIRGULA> )
+  ( t = <ID> e = TokenIDL() 
+  {result = new Atrib(t.image, e);}
+
+  | "if" <APAREN> e = Exp() <FPAREN> <ACHAVES> comandos = SeqComandos() <FCHAVES> <PTOVIRGULA>
+  {result = new CondicionalIF(e, comandos);}
+
+  | "while" <APAREN> e = Exp() <FPAREN> "do" <ACHAVES> comandos = SeqComandos() <FCHAVES>
+  {result = new LacoWhile(e, comandos);} 
+
+  | "do" <ACHAVES> comandos = SeqComandos() <FCHAVES> "while" <APAREN> e = Exp() <FPAREN>
+  {result = new LacoDoWhile(e, comandos);}
+
+  | "return" e = Exp() <PTOVIRGULA>
+  {result = new Return(e);}
+
+  | "print" <APAREN> e = Exp() <FPAREN> <PTOVIRGULA> )
+  {result = new Print(e);}
+
+
+  {return result;}
 }
 
+
+
 //TOKEN_idL -> ":=" EXP ";" | "(" LISTAEXP? ")" ";"
-void TokenIDL () :
-{}
+Exp TokenIDL () :
+{Exp e;}
 {
-  (<ATRIB> Exp() <PTOVIRGULA> | <APAREN> (ListaExp())? <FPAREN> <PTOVIRGULA>) 
+  ( <ATRIB> e = Exp() <PTOVIRGULA> 
+  | <APAREN> e = (ListaExp())? <FPAREN> <PTOVIRGULA>) 
+
+  return e;
 }
 
 //EXP -> "(" EXP OP EXP ")" | FATOR
@@ -234,17 +401,21 @@ void Op () :
 }
 
 //LISTAEXP -> EXP LISTAEXPL
-void ListaExp () :
-{}
+Exp ListaExp () :
+{ ArrayList<Exp> listaExp = new ArrayList<>();
+  Exp e;
+  }
 {
-  Exp() ListaExpL()
+  e = Exp() {listaExp.add(e);} ListaExpL(listaExp)
+
+  {return new ListaExp(listaExp);}
 }
 
 //LISTAEXPL -> "," EXP LISTAEXPL | vazio
-void ListaExpL () :
-{}
+void ListaExpL (ArrayList<Exp> listaExp) :
+{ Exp e;}
 {
-  ( <VIRGULA> Exp() ListaExpL() )?
+  ( <VIRGULA> e = Exp() {listaExp.add(e);} ListaExpL(listaExp) )?
 }
 
 //FUNC -> "function" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}" FUNCL
