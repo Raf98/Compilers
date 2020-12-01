@@ -12,11 +12,11 @@ class ArvoreLugosi{
   }
 }
 
-class Main(){
+class Main{
   ArrayList<Comando> comandos;
   ArrayList<VarDecl> varDecls;
 
-  ArvoreLugosi(ArrayList<VarDecl> varDecls, ArrayList<Comando> comandos){
+  Main(ArrayList<VarDecl> varDecls, ArrayList<Comando> comandos){
     this.varDecls = varDecls;
     this.comandos = comandos;
   }
@@ -58,7 +58,7 @@ class ChamadaDeFuncao extends Comando{
   String tokenID;
   ListaExp listaExp;
   
-  Atrib (String tokenID, ListaExp listaExp)
+  ChamadaDeFuncao (String tokenID, ListaExp listaExp)
   {
     this.tokenID=tokenID;
     this.listaExp=listaExp;
@@ -79,7 +79,7 @@ class LacoWhile extends Comando{
   Exp exp;
   ArrayList<Comando> comandosEscopoWhile;
 
-  CondicionalIF (Exp exp, ArrayList<Comando> comandosEscopoWhile){
+  LacoWhile (Exp exp, ArrayList<Comando> comandosEscopoWhile){
     this.exp = exp;
     this.comandosEscopoWhile = comandosEscopoWhile;
   }
@@ -89,7 +89,7 @@ class LacoDoWhile extends Comando{
   Exp exp;
   ArrayList<Comando> comandosEscopoDoWhile;
 
-  CondicionalIF (Exp exp, ArrayList<Comando> comandosEscopoDoWhile){
+  LacoDoWhile (Exp exp, ArrayList<Comando> comandosEscopoDoWhile){
     this.exp = exp;
     this.comandosEscopoDoWhile = comandosEscopoDoWhile;
   }
@@ -112,6 +112,17 @@ class Print extends Comando{
 
 class Exp{}
 
+class Infixo extends Exp{
+  Exp e1, e2;
+  Op op;
+
+  Infixo(Exp e1, Exp e2, Op op){
+    this.e1 = e1;
+    this.e2 = e2;
+    this.op = op;
+  }
+}
+
 class Fator extends Exp{}
 
 class VariavelID extends Fator{
@@ -126,7 +137,7 @@ class ChamadaDeFuncaoExp extends Fator{
   ChamadaDeFuncao chamadaDeFuncaoExp;
 
   ChamadaDeFuncaoExp(String tokenID, ListaExp listaExp){
-    chamadaDeFuncaoExp = new ChamadaDeFuncaoExp(tokenID, listaExp);
+    chamadaDeFuncaoExp = new ChamadaDeFuncao(tokenID, listaExp);
   }
 }
 
@@ -156,7 +167,7 @@ class Op{
 class Arg extends VarDecl{
 
   Arg(String tipo, String tokenID){
-    super.VarDecl(tipo, tokenID)
+    super(tipo, tokenID);
   }
 }
 
@@ -179,6 +190,8 @@ class Function{
   }
 }
 
+public class Lugosi {
+
   public static void main(String args[]) throws Exception{
 
     // abrir o arquivo passado por linha
@@ -197,13 +210,14 @@ class Function{
     // passar a árvore para o gerador de código
     // que deve gerar um arquivo .java com o mesmo
     //nome do arquivo de entrada
-    geraCodigo(arvore, args[0])
+    geraCodigo(arvore, args[0]);
 }
 
 public static void geraCodigo(ArvoreLugosi prog, String arquivo){
 
 }
 
+}
 
 PARSER_END(Lugosi)
 
@@ -274,43 +288,47 @@ TOKEN :
 
 ArvoreLugosi Lugosi () :
 {//Token t;
-  Main main = new Main();
-  ArrayList<Function> functions = new ArrayList<>();
+  ArrayList<VarDecl> varDecls = new ArrayList<VarDecl>();
+  ArrayList<Comando> comandos = new ArrayList<Comando>();
+  Main main = new Main(varDecls, comandos);
+  ArrayList<Function> functions = new ArrayList<Function>();
 }
 {
-
 //Syntax-directed translation Parser
 
+  // LUGOSI -> MAIN FUNC?
+  main = Main() (functions = Func(new ArrayList<Function>()))? <EOF> 
 
-// LUGOSI -> MAIN FUNC?
-  Main() (Func())? <EOF> 
-
+  {return new ArvoreLugosi(main, functions);}
 }
+
 
 //MAIN -> "main" "{" VARDECL SEQCOMANDOS "}"
 Main Main () :
-{ ArrayList<VarDecl> varDecls = new ArrayList<>();
-  ArrayList<Comando> comandos = new ArrayList<>();}
+{ ArrayList<VarDecl> varDecls = new ArrayList<VarDecl>();
+  ArrayList<Comando> comandos = new ArrayList<Comando>();}
 {
 
-  <MAIN> <ACHAVES> VarDecl() SeqComandos() <FCHAVES> 
+  <MAIN> <ACHAVES> VarDecl(varDecls) SeqComandos(comandos) <FCHAVES> 
   {return new Main(varDecls, comandos);}
 }
 
 //VARDECL -> "var" TIPO TOKEN_id ";" VARDECL | vazio
-void VarDecl () :
-{}
+ArrayList<VarDecl> VarDecl (ArrayList<VarDecl> varDecls) :
+{Token t = null; String tipo = null; }
 {
 //tirar recursao a esquerda
-  ("var" Tipo() <ID> VarDecl() <PTOVIRGULA> VarDecl())?
+  ("var" tipo = Tipo() t = <ID> /*VarDecl()*/ {varDecls.add(new VarDecl(tipo, t.image));}
+   <PTOVIRGULA> VarDecl(varDecls))?
+  {return varDecls;}
 }
 
 
 //TIPO -> "int" | "bool" | "float" | "void"
-void Tipo () :
-{}
+String Tipo () :
+{Token t;}
 {
-  <TIPOD>
+  t = <TIPOD> {return t.image;}
 }
 
 //SEQCOMANDOS -> COMANDO SEQCOMANDOS | vazio
@@ -329,20 +347,20 @@ ArrayList<Comando> SeqComandos (ArrayList<Comando> comandos) :
 | "return" EXP ";"
 | "print" "(" EXP ")" ";"
 */
-void Comando () :
+Comando Comando () :
 { Token t = null; Exp e = null; Comando c = null; Comando result = null;
   ArrayList<Comando> comandos = null;}
 {
   ( t = <ID> e = TokenIDL() 
   {result = new Atrib(t.image, e);}
 
-  | "if" <APAREN> e = Exp() <FPAREN> <ACHAVES> comandos = SeqComandos() <FCHAVES> <PTOVIRGULA>
+  | "if" <APAREN> e = Exp() <FPAREN> <ACHAVES> comandos = SeqComandos(comandos) <FCHAVES> <PTOVIRGULA>
   {result = new CondicionalIF(e, comandos);}
 
-  | "while" <APAREN> e = Exp() <FPAREN> "do" <ACHAVES> comandos = SeqComandos() <FCHAVES>
+  | "while" <APAREN> e = Exp() <FPAREN> "do" <ACHAVES> comandos = SeqComandos(comandos) <FCHAVES>
   {result = new LacoWhile(e, comandos);} 
 
-  | "do" <ACHAVES> comandos = SeqComandos() <FCHAVES> "while" <APAREN> e = Exp() <FPAREN>
+  | "do" <ACHAVES> comandos = SeqComandos(comandos) <FCHAVES> "while" <APAREN> e = Exp() <FPAREN>
   {result = new LacoDoWhile(e, comandos);}
 
   | "return" e = Exp() <PTOVIRGULA>
@@ -359,50 +377,67 @@ void Comando () :
 
 //TOKEN_idL -> ":=" EXP ";" | "(" LISTAEXP? ")" ";"
 Exp TokenIDL () :
-{Exp e;}
+{Exp e = null;}
 {
   ( <ATRIB> e = Exp() <PTOVIRGULA> 
-  | <APAREN> e = (ListaExp())? <FPAREN> <PTOVIRGULA>) 
+  | <APAREN> (e = ListaExp())? <FPAREN> <PTOVIRGULA>) 
 
-  return e;
+  {return e;}
 }
 
 //EXP -> "(" EXP OP EXP ")" | FATOR
-void Exp () :
-{}
+Exp Exp () :
+{Exp e1 = null, e2 = null, result = null; Op op = null; Fator f = null;}
 {
-  ( <APAREN> Exp() Op() Exp() <FPAREN> | Fator() )
+  ( <APAREN> e1 = Exp() op = Op() e2 = Exp() <FPAREN> 
+  {result = new Infixo(e1, e2, op);} 
+  | f = Fator()
+  {result = f;})
+
+  {return result;}
 }
 
 /*FATOR -> TOKEN_id TOKEN_idL2 
 | TOKEN_numliteral | "true" | "false"
 */
-void Fator () :
-{}
+Fator Fator () :
+{Token t = null;  Fator result = null;}
 {
-  ( <ID> TokenIDL2()
-  | <NUM> | <BVAL> )
+  ( t = <ID> result = TokenIDL2(t.image)
+  | t = <NUM> {result = new Num(Float.valueOf(t.image));} 
+  | t = <BVAL> {result = new BooleanValue(t.image);} )
+
+  {return result;}
 }
 
 //TOKEN_idL2 -> "(" LISTAEXP? ")" | vazio
-void TokenIDL2 () :
-{}
+Fator TokenIDL2 (String tokenID) :
+{ ListaExp listaExp = null;
+  Fator result = null;}
 {
-  ( <APAREN> (ListaExp())? <FPAREN> )?
+  ( <APAREN> (listaExp = ListaExp())? <FPAREN> )?
+  { if (listaExp == null)
+      result = new VariavelID(tokenID);
+    else
+      result = new ChamadaDeFuncaoExp(tokenID, listaExp);
+    return result;}
 }
 
 //OP -> "+" | "-" | "*" | "/" | "&&" | "||" | "<" | ">" | "=="
-void Op () :
-{}
+Op Op () :
+{Token t = null;Op result = null;}
 {
-  ( <ADD> | <SUB> | <MULT> | <DIV>
-  | <AND> | <OR>
-  | <MENOR> | <MAIOR> | <IGUAL>)
+  ( t = <ADD> | t = <SUB> | t = <MULT> | t = <DIV>
+  | t = <AND> | t = <OR>
+  | t = <MENOR> | t = <MAIOR> | t = <IGUAL>)
+  {result = new Op(t.image);
+   return result;}
+  
 }
 
 //LISTAEXP -> EXP LISTAEXPL
-Exp ListaExp () :
-{ ArrayList<Exp> listaExp = new ArrayList<>();
+ListaExp ListaExp () :
+{ ArrayList<Exp> listaExp = new ArrayList<Exp>();
   Exp e;
   }
 {
@@ -419,31 +454,53 @@ void ListaExpL (ArrayList<Exp> listaExp) :
 }
 
 //FUNC -> "function" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}" FUNCL
-void Func () :
-{}
+ArrayList<Function> Func (ArrayList<Function> functions) :
+{ Token t = null; String tipo = null; 
+  ArrayList<Arg> listaArgs = new ArrayList<Arg>();
+  ArrayList<VarDecl> varDecls = new ArrayList<VarDecl>();
+  ArrayList<Comando> comandos = new ArrayList<Comando>();
+}
 {
-  "function" <TIPOD> <ID> <APAREN> (ListaArg())? <FPAREN> <ACHAVES> VarDecl() SeqComandos() <FCHAVES> FuncL()
+  "function" tipo = Tipo() t = <ID>
+  { listaArgs.add(new Arg(tipo, t.image)); }
+   <APAREN> (ListaArg(listaArgs))? <FPAREN> 
+  <ACHAVES> VarDecl(varDecls) SeqComandos(comandos) 
+  { functions.add(new Function(tipo, t.image, listaArgs, varDecls, comandos));}
+  <FCHAVES> FuncL(functions)
+  {return functions;}
 }
 
 //FUNCL -> "function" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}" FUNCL | vazio
-void FuncL () :
-{}
+ArrayList<Function> FuncL (ArrayList<Function> functions) :
+{ Token t = null; String tipo = null;
+  ArrayList<Arg> listaArgs = new ArrayList<Arg>();
+  ArrayList<VarDecl> varDecls = new ArrayList<VarDecl>();
+  ArrayList<Comando> comandos = new ArrayList<Comando>();
+}
 {
-  ( "function" <TIPOD> <ID> <APAREN> (ListaArg())? <FPAREN> <ACHAVES> VarDecl() SeqComandos() <FCHAVES> FuncL() )?
+  ( "function" tipo = Tipo() t = <ID>
+  { listaArgs.add(new Arg(tipo, t.image)); }
+   <APAREN> (ListaArg(listaArgs))? <FPAREN> 
+  <ACHAVES> VarDecl(varDecls) SeqComandos(comandos) 
+  { functions.add(new Function(tipo, t.image, listaArgs, varDecls, comandos));}
+  <FCHAVES> FuncL(functions)
+  {return functions;} )?
 }
 
 //LISTAARG -> TIPO TOKEN_id LISTAARGL
-void ListaArg () :
-{}
+ArrayList<Arg> ListaArg (ArrayList<Arg> listaArgs) :
+{Token t = null; String tipo = null;}
 {
-  <TIPOD> <ID> ListaArgL()
+  tipo = Tipo() t = <ID> {listaArgs.add(new Arg(tipo, t.image));} ListaArgL(listaArgs)
+  {return listaArgs;}
 }
 
 //LISTAARGL -> "," TIPO TOKEN_id LISTAARGL | vazio
-void ListaArgL () :
-{}
+ArrayList<Arg> ListaArgL (ArrayList<Arg> listaArgs) :
+{Token t = null; String tipo = null;}
 {
-  ( <VIRGULA> <TIPOD> <ID> ListaArgL())?
+  ( <VIRGULA> tipo = Tipo() t = <ID> {listaArgs.add(new Arg(tipo, t.image));} ListaArgL(listaArgs))?
+  {return listaArgs;}
 }
 
 
