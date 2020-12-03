@@ -209,7 +209,7 @@ public class Lugosi {
 
     // passar a árvore para o gerador de código
     // que deve gerar um arquivo .java com o mesmo
-    //nome do arquivo de entrada
+    // nome do arquivo de entrada
     geraCodigo(arvore, args[0]);
 }
 
@@ -349,7 +349,7 @@ ArrayList<Comando> SeqComandos (ArrayList<Comando> comandos) :
 */
 Comando Comando () :
 { Token t = null; Exp e = null; Comando c = null; Comando result = null;
-  ArrayList<Comando> comandos = null;}
+  ArrayList<Comando> comandos = new ArrayList<Comando>();}
 {
   ( t = <ID> e = TokenIDL() 
   {result = new Atrib(t.image, e);}
@@ -484,7 +484,9 @@ ArrayList<Function> FuncL (ArrayList<Function> functions) :
   <ACHAVES> VarDecl(varDecls) SeqComandos(comandos) 
   { functions.add(new Function(tipo, t.image, listaArgs, varDecls, comandos));}
   <FCHAVES> FuncL(functions)
-  {return functions;} )?
+  )?
+
+  {return functions;} 
 }
 
 //LISTAARG -> TIPO TOKEN_id LISTAARGL

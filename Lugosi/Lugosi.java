@@ -312,7 +312,7 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
 */
   static final public Comando Comando() throws ParseException {
   Token t = null; Exp e = null; Comando c = null; Comando result = null;
-  ArrayList<Comando> comandos = null;
+  ArrayList<Comando> comandos = new ArrayList<Comando>();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case ID:
       t = jj_consume_token(ID);
@@ -621,12 +621,12 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
     functions.add(new Function(tipo, t.image, listaArgs, varDecls, comandos));
       jj_consume_token(FCHAVES);
       FuncL(functions);
-   {if (true) return functions;}
       break;
     default:
       jj_la1[14] = jj_gen;
       ;
     }
+   {if (true) return functions;}
     throw new Error("Missing return statement in function");
   }
 
