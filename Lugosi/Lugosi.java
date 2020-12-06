@@ -51,14 +51,6 @@ class Atrib extends Comando{
   }*/
 }
 
-class ListaExp extends Exp{
-  ArrayList<Exp> listaExp;
-
-  ListaExp (ArrayList<Exp> listaExp){
-    this.listaExp = listaExp;
-  }
-}
-
 class ChamadaDeFuncao extends Comando{
   String tokenID;
   ListaExp listaExp;
@@ -116,6 +108,14 @@ class Print extends Comando{
 }
 
 class Exp{}
+
+class ListaExp extends Exp{
+  ArrayList<Exp> listaExp;
+
+  ListaExp (ArrayList<Exp> listaExp){
+    this.listaExp = listaExp;
+  }
+}
 
 class Infixo extends Exp{
   Exp e1, e2;
@@ -236,13 +236,13 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
   programBuilder.append("\u005ctpublic static void main(String args[]){\u005cn");
 
   for(var varDecl : prog.main.varDecls){
-    programBuilder.append(geraVarDecl(programBuilder, varDecl));
+    programBuilder.append(geraVarDecl(varDecl));
   }
 
   programBuilder.append("\u005cn\u005cn");
 
   for(var comando : prog.main.comandos){
-    programBuilder.append(geraComando(programBuilder, comando));
+    geraComando(programBuilder, comando);
   }
 
   programBuilder.append("\u005ct}\u005cn");
@@ -255,85 +255,172 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
 
 }
 
-public static String geraVarDecl(StringBuilder programBuilder, VarDecl varDecl){
+public static String geraVarDecl(VarDecl varDecl){
   return "\u005ct\u005ct" + varDecl.tipo + " " + varDecl.tokenID + ";\u005cn";
 }
 
-public static String geraComando(StringBuilder programBuilder, Comando comando){
+public static void geraComando(StringBuilder programBuilder, Comando comando){
 
   if(comando instanceof Atrib){
-    return "comando Atrib\u005cn";
+    programBuilder.append("\u005ct\u005ct");
+    geraAtrib(programBuilder, (Atrib)comando);
   }
 
-  if(comando instanceof ChamadaDeFuncao){
-    return "comando ChamadaDeFuncao\u005cn";
+  else if(comando instanceof ChamadaDeFuncao){
+    //programBuilder.append("\n");
+    programBuilder.append("\u005ct\u005ct");
+    geraChamadaDeFuncao(programBuilder, (ChamadaDeFuncao)comando);
+    programBuilder.append(";\u005cn");
   }
 
-  if(comando instanceof CondicionalIF){
-    return "comando CondicionalIF\u005cn";
+  else if(comando instanceof CondicionalIF){
+    //programBuilder.append("\n");
+    programBuilder.append("\u005ct\u005ct");
+    programBuilder.append("if( ");
+    geraCondicionalIF(programBuilder, (CondicionalIF)comando);
+    programBuilder.append("\u005ct\u005ct}\u005cn\u005cn");
   }
 
-  if(comando instanceof LacoWhile){
-    return "comando LacoWhile\u005cn";
+  else if(comando instanceof LacoWhile){
+    //programBuilder.append("\n");
+    programBuilder.append("\u005ct\u005ct");
+    programBuilder.append("while( ");
+    geraLacoWhile(programBuilder, (LacoWhile)comando);
+    programBuilder.append("\u005ct\u005ct}\u005cn\u005cn");
   }
 
-  if(comando instanceof LacoDoWhile){
-    return "comando LacoDoWhile\u005cn";
+  else if(comando instanceof LacoDoWhile){
+    //programBuilder.append("\n");
+    programBuilder.append("\u005ct\u005ct");
+    programBuilder.append("do\u005cn\u005ct\u005ct{\u005cn");
+    geraLacoDoWhile(programBuilder, (LacoDoWhile)comando);
+    programBuilder.append("\u005cn\u005cn");
   }
 
-  if(comando instanceof Return){
-    return "comando Return\u005cn";
+  else if(comando instanceof Return){
+    programBuilder.append("\u005ct\u005ct");
+    geraReturn(programBuilder, (Return)comando);
   }
 
-  if(comando instanceof Print){
-    return "comando Print\u005cn";
+  else if(comando instanceof Print){
+    programBuilder.append("\u005ct\u005ct");
+    geraPrint(programBuilder, (Print)comando);
+  }
+}
+
+public static void geraAtrib(StringBuilder programBuilder, Atrib atrib){
+  programBuilder.append(atrib.tokenID);
+  programBuilder.append(" = ");
+  geraExp(programBuilder, atrib.exp);
+  programBuilder.append(";\u005cn");
+}
+
+public static void geraChamadaDeFuncao(StringBuilder programBuilder, ChamadaDeFuncao chamadaDeFuncao){
+  programBuilder.append(chamadaDeFuncao.tokenID);
+  programBuilder.append("( ");
+  geraListaExp(programBuilder, chamadaDeFuncao.listaExp);
+  programBuilder.append(" )");
+}
+
+public static void geraCondicionalIF(StringBuilder programBuilder, CondicionalIF condicionalIF){
+  geraExp(programBuilder, condicionalIF.exp);
+  programBuilder.append("){\u005cn");
+
+  for(var comando : condicionalIF.comandosEscopoIF){
+    programBuilder.append("\u005ct");
+    geraComando(programBuilder, comando);
+  }
+}
+
+public static void geraLacoWhile(StringBuilder programBuilder, LacoWhile lacoWhile){
+  geraExp(programBuilder, lacoWhile.exp);
+  programBuilder.append("){\u005cn");
+
+  for(var comando : lacoWhile.comandosEscopoWhile){
+    programBuilder.append("\u005ct");
+    geraComando(programBuilder, comando);
+  }
+}
+
+public static void geraLacoDoWhile(StringBuilder programBuilder, LacoDoWhile lacoDoWhile){
+  for(var comando : lacoDoWhile.comandosEscopoDoWhile){
+    programBuilder.append("\u005ct");
+    geraComando(programBuilder, comando);
   }
 
-  return "comando null\u005cn";
+  programBuilder.append("\u005ct\u005ct}(");
+  geraExp(programBuilder, lacoDoWhile.exp);
+  programBuilder.append(")\u005cn");
 }
 
-public static void geraAtrib(StringBuilder programBuilder, Comando comando){
+public static void geraReturn(StringBuilder programBuilder, Return comandoReturn){
+  programBuilder.append("return ");
+  geraExp(programBuilder, comandoReturn.exp);
+  programBuilder.append(";\u005cn");
+}
+
+public static void geraPrint(StringBuilder programBuilder, Print print){
+  //programBuilder.append("\n");
+  programBuilder.append("System.out.println( ");
+  geraExp(programBuilder, print.exp);
+  programBuilder.append(" );\u005cn");
+}
+
+public static void geraExp(StringBuilder programBuilder, Exp exp){
+
+  if(exp instanceof ListaExp){
+    programBuilder.append("( ");
+    geraListaExp(programBuilder, (ListaExp)exp);
+    programBuilder.append(")");
+  }
+  else if(exp instanceof Infixo){
+    programBuilder.append("( ");
+    geraInfixo(programBuilder, (Infixo)exp);
+    programBuilder.append(" )");
+  }
+  else if(exp instanceof Fator){
+    geraFator(programBuilder, (Fator)exp);
+  }
+}
+
+public static void geraListaExp(StringBuilder programBuilder, ListaExp listaExp){
+  int count = 0;
+
+  for(var itemExp : listaExp.listaExp){
+    geraExp(programBuilder, itemExp);
+
+    ++count;
+
+    if(count < listaExp.listaExp.size())
+      programBuilder.append(", ");
+  }
+}
+
+public static void geraInfixo(StringBuilder programBuilder, Infixo infixo){
+
+  geraExp(programBuilder, infixo.e1);
+  geraOp(programBuilder, infixo.op);
+  geraExp(programBuilder, infixo.e2);
 
 }
 
-public static void geraChamadaDeFuncao(StringBuilder programBuilder, Comando comando){
-
+public static void geraFator(StringBuilder programBuilder, Fator fator){
+  if(fator instanceof VariavelID){
+    programBuilder.append(((VariavelID)fator).tokenID);
+  }
+  else if(fator instanceof ChamadaDeFuncaoExp){
+    geraChamadaDeFuncao(programBuilder, ((ChamadaDeFuncaoExp)fator).chamadaDeFuncaoExp);
+  }
+  else if(fator instanceof Num){
+    programBuilder.append( ((Num)fator).num );
+  }
+  else if(fator instanceof BooleanValue){
+    programBuilder.append( ((BooleanValue)fator).trueOrFalse );
+  }
 }
 
-public static void geraCondicionalIF(StringBuilder programBuilder, Comando comando){
-
-}
-
-public static void geraLacoWhile(StringBuilder programBuilder, Comando comando){
-
-}
-
-public static void geraLacoDoWhile(StringBuilder programBuilder, Comando comando){
-
-}
-
-public static void geraReturn(StringBuilder programBuilder, Comando comando){
-
-}
-
-public static void geraPrint(StringBuilder programBuilder, Comando comando){
-
-}
-
-public static void geraExp(StringBuilder programBuilder, Comando comando){
-
-}
-
-public static void geraInfixo(StringBuilder programBuilder, Comando comando){
-
-}
-
-public static void geraFator(StringBuilder programBuilder, Comando comando){
-
-}
-
-public static void geraOp(StringBuilder programBuilder, Comando comando){
-
+public static void geraOp(StringBuilder programBuilder, Op op){
+  programBuilder.append(" " +  op.operation + " ");
 }
 
 public static void geraFunction(StringBuilder programBuilder, Comando comando){
@@ -464,6 +551,7 @@ public static void geraFunction(StringBuilder programBuilder, Comando comando){
       jj_consume_token(ACHAVES);
       comandos = SeqComandos(comandos);
       jj_consume_token(FCHAVES);
+      jj_consume_token(PTOVIRGULA);
    {if (true) return new LacoWhile(e, comandos);}
       break;
     case DO:
@@ -475,6 +563,7 @@ public static void geraFunction(StringBuilder programBuilder, Comando comando){
       jj_consume_token(APAREN);
       e = Exp();
       jj_consume_token(FPAREN);
+      jj_consume_token(PTOVIRGULA);
    {if (true) return new LacoDoWhile(e, comandos);}
       break;
     case RETURN:

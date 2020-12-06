@@ -25,7 +25,7 @@ main
 	do
 	{
 		num1 := (num1 + 1);
-	}
+	};
 		
 	num1 := (num1 + 1);
 	positivo := true;
@@ -44,7 +44,7 @@ main
 	do
 	{
 		num2 := (num2 + 1);
-	}
+	};
 		
 	num2 := (num2 + 1);
 	positivo := true;
@@ -63,7 +63,7 @@ main
 	do
 	{
 		num3 := (num3 + 1);
-	}
+	};
 		
 	num3 := (num3 + 1);
 	positivo := true;
