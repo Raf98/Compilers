@@ -44,6 +44,11 @@ class Atrib extends Comando{
     this.tokenID=tokenID;
     this.exp=exp;
   }
+
+  /*print()
+  {
+    //System.out.println(this.tokenID + " = " + this.exp);
+  }*/
 }
 
 class ListaExp extends Exp{
@@ -214,7 +219,125 @@ public class Lugosi {
 }
 
 public static void geraCodigo(ArvoreLugosi prog, String arquivo){
+  StringBuilder programBuilder = new StringBuilder(1000);
 
+  char[] arquivoChars = arquivo.toCharArray();
+  arquivoChars[0] = Character.toUpperCase(arquivoChars[0]);
+
+  StringBuilder charToString = new StringBuilder(arquivo.length());
+
+  for (int i = 0; i < arquivoChars.length; i++){ 
+            charToString.append(arquivoChars[i]); 
+  } 
+  arquivo = charToString.toString();
+
+  programBuilder.append("class " + arquivo.split("\\.")[0] + "{\n");
+
+  programBuilder.append("\tpublic static void main(String args[]){\n");
+
+  for(var varDecl : prog.main.varDecls){
+    programBuilder.append(geraVarDecl(programBuilder, varDecl));
+  }
+
+  programBuilder.append("\n\n");
+
+  for(var comando : prog.main.comandos){
+    programBuilder.append(geraComando(programBuilder, comando));
+  }
+
+  programBuilder.append("\t}\n");
+
+  //gera funçoes
+
+  programBuilder.append("}");
+
+  System.out.println(programBuilder.toString());
+
+}
+
+public static String geraVarDecl(StringBuilder programBuilder, VarDecl varDecl){
+  return "\t\t" + varDecl.tipo + " " + varDecl.tokenID + ";\n";
+}
+
+public static String geraComando(StringBuilder programBuilder, Comando comando){
+
+  if(comando instanceof Atrib){
+    return "comando Atrib\n";
+  }
+
+  if(comando instanceof ChamadaDeFuncao){
+    return "comando ChamadaDeFuncao\n";
+  }
+
+  if(comando instanceof CondicionalIF){
+    return "comando CondicionalIF\n";
+  }
+
+  if(comando instanceof LacoWhile){
+    return "comando LacoWhile\n";
+  }
+
+  if(comando instanceof LacoDoWhile){
+    return "comando LacoDoWhile\n";
+  }
+
+  if(comando instanceof Return){
+    return "comando Return\n";
+  }
+
+  if(comando instanceof Print){
+    return "comando Print\n";
+  }
+
+  return "comando null\n";
+}
+
+public static void geraAtrib(StringBuilder programBuilder, Comando comando){
+  
+}
+
+public static void geraChamadaDeFuncao(StringBuilder programBuilder, Comando comando){
+  
+}
+
+public static void geraCondicionalIF(StringBuilder programBuilder, Comando comando){
+  
+}
+
+public static void geraLacoWhile(StringBuilder programBuilder, Comando comando){
+  
+}
+
+public static void geraLacoDoWhile(StringBuilder programBuilder, Comando comando){
+  
+}
+
+public static void geraReturn(StringBuilder programBuilder, Comando comando){
+  
+}
+
+public static void geraPrint(StringBuilder programBuilder, Comando comando){
+  
+}
+
+public static void geraExp(StringBuilder programBuilder, Comando comando){
+  
+}
+
+public static void geraInfixo(StringBuilder programBuilder, Comando comando){
+  
+}
+
+public static void geraFator(StringBuilder programBuilder, Comando comando){
+  
+}
+
+public static void geraOp(StringBuilder programBuilder, Comando comando){
+  
+}
+
+public static void geraFunction(StringBuilder programBuilder, Comando comando){
+  
 }
 
 }
@@ -351,26 +474,28 @@ Comando Comando () :
 { Token t = null; Exp e = null; Comando c = null; Comando result = null;
   ArrayList<Comando> comandos = new ArrayList<Comando>();}
 {
-  ( t = <ID> e = TokenIDL() 
-  {result = new Atrib(t.image, e);}
+  t = <ID> e = TokenIDL() 
+  { if(e instanceof ListaExp)
+      return new ChamadaDeFuncao(t.image, (ListaExp)e);
+    return new Atrib(t.image, e);}
 
   | "if" <APAREN> e = Exp() <FPAREN> <ACHAVES> comandos = SeqComandos(comandos) <FCHAVES> <PTOVIRGULA>
-  {result = new CondicionalIF(e, comandos);}
+  {return new CondicionalIF(e, comandos);}
 
   | "while" <APAREN> e = Exp() <FPAREN> "do" <ACHAVES> comandos = SeqComandos(comandos) <FCHAVES>
-  {result = new LacoWhile(e, comandos);} 
+  {return new LacoWhile(e, comandos);} 
 
   | "do" <ACHAVES> comandos = SeqComandos(comandos) <FCHAVES> "while" <APAREN> e = Exp() <FPAREN>
-  {result = new LacoDoWhile(e, comandos);}
+  {return new LacoDoWhile(e, comandos);}
 
   | "return" e = Exp() <PTOVIRGULA>
-  {result = new Return(e);}
+  {return new Return(e);}
 
-  | "print" <APAREN> e = Exp() <FPAREN> <PTOVIRGULA> )
-  {result = new Print(e);}
+  | "print" <APAREN> e = Exp() <FPAREN> <PTOVIRGULA>
+  {return new Print(e);}
 
 
-  {return result;}
+  /*{return result;}*/
 }
 
 
@@ -379,8 +504,9 @@ Comando Comando () :
 Exp TokenIDL () :
 {Exp e = null;}
 {
-  ( <ATRIB> e = Exp() <PTOVIRGULA> 
-  | <APAREN> (e = ListaExp())? <FPAREN> <PTOVIRGULA>) 
+  ( <ATRIB> e = Exp() <PTOVIRGULA>  
+  | <APAREN> (e = ListaExp())? <FPAREN> <PTOVIRGULA>)
+   
 
   {return e;}
 }
@@ -389,12 +515,12 @@ Exp TokenIDL () :
 Exp Exp () :
 {Exp e1 = null, e2 = null, result = null; Op op = null; Fator f = null;}
 {
-  ( <APAREN> e1 = Exp() op = Op() e2 = Exp() <FPAREN> 
-  {result = new Infixo(e1, e2, op);} 
+  <APAREN> e1 = Exp() op = Op() e2 = Exp() <FPAREN> 
+  {return new Infixo(e1, e2, op);} 
   | f = Fator()
-  {result = f;})
+  {return f;}
 
-  {return result;}
+  /*{return result;}*/
 }
 
 /*FATOR -> TOKEN_id TOKEN_idL2 
@@ -404,10 +530,11 @@ Fator Fator () :
 {Token t = null;  Fator result = null;}
 {
   ( t = <ID> result = TokenIDL2(t.image)
-  | t = <NUM> {result = new Num(Float.valueOf(t.image));} 
-  | t = <BVAL> {result = new BooleanValue(t.image);} )
-
   {return result;}
+  | t = <NUM> {return new Num(Float.valueOf(t.image));} 
+  | t = <BVAL> {return new BooleanValue(t.image);} )
+
+  //{return result;}
 }
 
 //TOKEN_idL2 -> "(" LISTAEXP? ")" | vazio
@@ -427,9 +554,16 @@ Fator TokenIDL2 (String tokenID) :
 Op Op () :
 {Token t = null;Op result = null;}
 {
-  ( t = <ADD> | t = <SUB> | t = <MULT> | t = <DIV>
-  | t = <AND> | t = <OR>
-  | t = <MENOR> | t = <MAIOR> | t = <IGUAL>)
+  ( t = <ADD>     /*{return new Op(t.image);}*/ 
+  | t = <SUB>     /*{return new Op(t.image);}*/ 
+  | t = <MULT>    /*{return new Op(t.image);}*/ 
+  | t = <DIV>     /*{return new Op(t.image);}*/
+  | t = <AND>     /*{return new Op(t.image);}*/ 
+  | t = <OR>      /*{return new Op(t.image);}*/
+  | t = <MENOR>   /*{return new Op(t.image);}*/ 
+  | t = <MAIOR>   /*{return new Op(t.image);}*/ 
+  | t = <IGUAL>)  /*{return new Op(t.image);}*/
+
   {result = new Op(t.image);
    return result;}
   

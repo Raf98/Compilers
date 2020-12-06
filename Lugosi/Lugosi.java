@@ -44,6 +44,11 @@ class Atrib extends Comando{
     this.tokenID=tokenID;
     this.exp=exp;
   }
+
+  /*print()
+  {
+    //System.out.println(this.tokenID + " = " + this.exp);
+  }*/
 }
 
 class ListaExp extends Exp{
@@ -209,11 +214,129 @@ public class Lugosi implements LugosiConstants {
 
     // passar a árvore para o gerador de código
     // que deve gerar um arquivo .java com o mesmo
-    //nome do arquivo de entrada
+    // nome do arquivo de entrada
     geraCodigo(arvore, args[0]);
 }
 
 public static void geraCodigo(ArvoreLugosi prog, String arquivo){
+  StringBuilder programBuilder = new StringBuilder(1000);
+
+  char[] arquivoChars = arquivo.toCharArray();
+  arquivoChars[0] = Character.toUpperCase(arquivoChars[0]);
+
+  StringBuilder charToString = new StringBuilder(arquivo.length());
+
+  for (int i = 0; i < arquivoChars.length; i++){
+            charToString.append(arquivoChars[i]);
+  }
+  arquivo = charToString.toString();
+
+  programBuilder.append("class " + arquivo.split("\u005c\u005c.")[0] + "{\u005cn");
+
+  programBuilder.append("\u005ctpublic static void main(String args[]){\u005cn");
+
+  for(var varDecl : prog.main.varDecls){
+    programBuilder.append(geraVarDecl(programBuilder, varDecl));
+  }
+
+  programBuilder.append("\u005cn\u005cn");
+
+  for(var comando : prog.main.comandos){
+    programBuilder.append(geraComando(programBuilder, comando));
+  }
+
+  programBuilder.append("\u005ct}\u005cn");
+
+  //gera funçoes
+
+  programBuilder.append("}");
+
+  System.out.println(programBuilder.toString());
+
+}
+
+public static String geraVarDecl(StringBuilder programBuilder, VarDecl varDecl){
+  return "\u005ct\u005ct" + varDecl.tipo + " " + varDecl.tokenID + ";\u005cn";
+}
+
+public static String geraComando(StringBuilder programBuilder, Comando comando){
+
+  if(comando instanceof Atrib){
+    return "comando Atrib\u005cn";
+  }
+
+  if(comando instanceof ChamadaDeFuncao){
+    return "comando ChamadaDeFuncao\u005cn";
+  }
+
+  if(comando instanceof CondicionalIF){
+    return "comando CondicionalIF\u005cn";
+  }
+
+  if(comando instanceof LacoWhile){
+    return "comando LacoWhile\u005cn";
+  }
+
+  if(comando instanceof LacoDoWhile){
+    return "comando LacoDoWhile\u005cn";
+  }
+
+  if(comando instanceof Return){
+    return "comando Return\u005cn";
+  }
+
+  if(comando instanceof Print){
+    return "comando Print\u005cn";
+  }
+
+  return "comando null\u005cn";
+}
+
+public static void geraAtrib(StringBuilder programBuilder, Comando comando){
+
+}
+
+public static void geraChamadaDeFuncao(StringBuilder programBuilder, Comando comando){
+
+}
+
+public static void geraCondicionalIF(StringBuilder programBuilder, Comando comando){
+
+}
+
+public static void geraLacoWhile(StringBuilder programBuilder, Comando comando){
+
+}
+
+public static void geraLacoDoWhile(StringBuilder programBuilder, Comando comando){
+
+}
+
+public static void geraReturn(StringBuilder programBuilder, Comando comando){
+
+}
+
+public static void geraPrint(StringBuilder programBuilder, Comando comando){
+
+}
+
+public static void geraExp(StringBuilder programBuilder, Comando comando){
+
+}
+
+public static void geraInfixo(StringBuilder programBuilder, Comando comando){
+
+}
+
+public static void geraFator(StringBuilder programBuilder, Comando comando){
+
+}
+
+public static void geraOp(StringBuilder programBuilder, Comando comando){
+
+}
+
+public static void geraFunction(StringBuilder programBuilder, Comando comando){
 
 }
 
@@ -317,7 +440,9 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
     case ID:
       t = jj_consume_token(ID);
       e = TokenIDL();
-   result = new Atrib(t.image, e);
+    if(e instanceof ListaExp)
+      {if (true) return new ChamadaDeFuncao(t.image, (ListaExp)e);}
+    {if (true) return new Atrib(t.image, e);}
       break;
     case IF:
       jj_consume_token(IF);
@@ -328,7 +453,7 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
       comandos = SeqComandos(comandos);
       jj_consume_token(FCHAVES);
       jj_consume_token(PTOVIRGULA);
-   result = new CondicionalIF(e, comandos);
+   {if (true) return new CondicionalIF(e, comandos);}
       break;
     case WHILE:
       jj_consume_token(WHILE);
@@ -339,7 +464,7 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
       jj_consume_token(ACHAVES);
       comandos = SeqComandos(comandos);
       jj_consume_token(FCHAVES);
-   result = new LacoWhile(e, comandos);
+   {if (true) return new LacoWhile(e, comandos);}
       break;
     case DO:
       jj_consume_token(DO);
@@ -350,13 +475,13 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
       jj_consume_token(APAREN);
       e = Exp();
       jj_consume_token(FPAREN);
-   result = new LacoDoWhile(e, comandos);
+   {if (true) return new LacoDoWhile(e, comandos);}
       break;
     case RETURN:
       jj_consume_token(RETURN);
       e = Exp();
       jj_consume_token(PTOVIRGULA);
-   result = new Return(e);
+   {if (true) return new Return(e);}
       break;
     case PRINT:
       jj_consume_token(PRINT);
@@ -364,14 +489,13 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
       e = Exp();
       jj_consume_token(FPAREN);
       jj_consume_token(PTOVIRGULA);
+   {if (true) return new Print(e);}
       break;
     default:
       jj_la1[3] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
-   result = new Print(e);
-   {if (true) return result;}
     throw new Error("Missing return statement in function");
   }
 
@@ -419,20 +543,19 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
       op = Op();
       e2 = Exp();
       jj_consume_token(FPAREN);
-   result = new Infixo(e1, e2, op);
+   {if (true) return new Infixo(e1, e2, op);}
       break;
     case BVAL:
     case NUM:
     case ID:
       f = Fator();
-   result = f;
+   {if (true) return f;}
       break;
     default:
       jj_la1[6] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
-   {if (true) return result;}
     throw new Error("Missing return statement in function");
   }
 
@@ -445,21 +568,21 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
     case ID:
       t = jj_consume_token(ID);
       result = TokenIDL2(t.image);
+   {if (true) return result;}
       break;
     case NUM:
       t = jj_consume_token(NUM);
-               result = new Num(Float.valueOf(t.image));
+               {if (true) return new Num(Float.valueOf(t.image));}
       break;
     case BVAL:
       t = jj_consume_token(BVAL);
-                result = new BooleanValue(t.image);
+                {if (true) return new BooleanValue(t.image);}
       break;
     default:
       jj_la1[7] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
-   {if (true) return result;}
     throw new Error("Missing return statement in function");
   }
 
