@@ -249,6 +249,10 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
 
   //gera funçoes
 
+  for(var function : prog.functions){
+    geraFunction(programBuilder, function);
+  }
+
   programBuilder.append("}");
 
   System.out.println(programBuilder.toString());
@@ -348,7 +352,7 @@ public static void geraLacoDoWhile(StringBuilder programBuilder, LacoDoWhile lac
     geraComando(programBuilder, comando);
   }
 
-  programBuilder.append("\u005ct\u005ct}(");
+  programBuilder.append("\u005ct\u005ct}while(");
   geraExp(programBuilder, lacoDoWhile.exp);
   programBuilder.append(")\u005cn");
 }
@@ -423,8 +427,35 @@ public static void geraOp(StringBuilder programBuilder, Op op){
   programBuilder.append(" " +  op.operation + " ");
 }
 
-public static void geraFunction(StringBuilder programBuilder, Comando comando){
+public static void geraFunction(StringBuilder programBuilder, Function function){
+  programBuilder.append("\u005ctpublic static " + function.tipo + " " + function.tokenID + "(");
+  geraArgs(programBuilder, function.listaArgs);
+  programBuilder.append("){\u005cn");
 
+  for(var varDecl : function.varDecls){
+    programBuilder.append(geraVarDecl(varDecl));
+  }
+
+  programBuilder.append("\u005cn\u005cn");
+
+  for(var comando : function.comandos){
+    geraComando(programBuilder, comando);
+  }
+
+  programBuilder.append("\u005ct}\u005cn");
+}
+
+public static void geraArgs(StringBuilder programBuilder, ArrayList<Arg> listaArgs){
+  int count = 0;
+
+  for(var arg : listaArgs){
+    programBuilder.append(arg.tipo + " " + arg.tokenID);
+
+    ++count;
+    if(count < listaArgs.size()){
+      programBuilder.append(", ");
+    }
+  }
 }
 
   static final public ArvoreLugosi Lugosi() throws ParseException {
