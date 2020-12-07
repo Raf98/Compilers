@@ -2,6 +2,10 @@
 import java.io.*;
 import java.util.ArrayList;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.BufferedOutputStream;
+
 class ArvoreLugosi{
   Main main;
   ArrayList<Function> functions;
@@ -218,7 +222,7 @@ public class Lugosi implements LugosiConstants {
     geraCodigo(arvore, args[0]);
 }
 
-public static void geraCodigo(ArvoreLugosi prog, String arquivo){
+public static void geraCodigo(ArvoreLugosi prog, String arquivo) throws Exception{
   StringBuilder programBuilder = new StringBuilder(1000);
 
   char[] arquivoChars = arquivo.toCharArray();
@@ -236,7 +240,7 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
   programBuilder.append("\u005ctpublic static void main(String args[]){\u005cn");
 
   for(var varDecl : prog.main.varDecls){
-    programBuilder.append(geraVarDecl(varDecl));
+    geraVarDecl(programBuilder, varDecl);
   }
 
   programBuilder.append("\u005cn\u005cn");
@@ -247,7 +251,7 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
 
   programBuilder.append("\u005ct}\u005cn");
 
-  //gera funçoes
+  //gera funcoes
 
   for(var function : prog.functions){
     geraFunction(programBuilder, function);
@@ -255,12 +259,35 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
 
   programBuilder.append("}");
 
-  System.out.println(programBuilder.toString());
+  String programString = programBuilder.toString();
+
+  System.out.println(programString);
+
+  String currentPath = System.getProperty("user.dir");
+  //System.out.println(currentPath);
+
+  //cria pasta para arquivos .java de saida, se nao existir
+  File outputFolder = new File(currentPath + "/JavaPrograms");
+  if(!outputFolder.exists())
+  {
+    outputFolder.mkdir();
+  }
+
+  //gera arquivo de saida
+  File javaProgram = new File("JavaPrograms/" + arquivo.split("\u005c\u005c.")[0] + ".java");
+        FileOutputStream fileOutputStream = new FileOutputStream(javaProgram);
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+
+        byte[] codeBytes = programString.getBytes();
+
+        bufferedOutputStream.write(codeBytes);
+        bufferedOutputStream.close();
+        fileOutputStream.close();
 
 }
 
-public static String geraVarDecl(VarDecl varDecl){
-  return "\u005ct\u005ct" + varDecl.tipo + " " + varDecl.tokenID + ";\u005cn";
+public static void geraVarDecl(StringBuilder programBuilder, VarDecl varDecl){
+  programBuilder.append("\u005ct\u005ct" + varDecl.tipo + " " + varDecl.tokenID + ";\u005cn");
 }
 
 public static void geraComando(StringBuilder programBuilder, Comando comando){
@@ -354,7 +381,7 @@ public static void geraLacoDoWhile(StringBuilder programBuilder, LacoDoWhile lac
 
   programBuilder.append("\u005ct\u005ct}while(");
   geraExp(programBuilder, lacoDoWhile.exp);
-  programBuilder.append(")\u005cn");
+  programBuilder.append(");\u005cn");
 }
 
 public static void geraReturn(StringBuilder programBuilder, Return comandoReturn){
@@ -416,7 +443,14 @@ public static void geraFator(StringBuilder programBuilder, Fator fator){
     geraChamadaDeFuncao(programBuilder, ((ChamadaDeFuncaoExp)fator).chamadaDeFuncaoExp);
   }
   else if(fator instanceof Num){
-    programBuilder.append( ((Num)fator).num );
+    float num = ((Num)fator).num;
+
+    if(num == Math.floor(num)){
+      programBuilder.append((int)num);
+    }
+    else{
+      programBuilder.append( num + "f" );
+    }
   }
   else if(fator instanceof BooleanValue){
     programBuilder.append( ((BooleanValue)fator).trueOrFalse );
@@ -433,7 +467,7 @@ public static void geraFunction(StringBuilder programBuilder, Function function)
   programBuilder.append("){\u005cn");
 
   for(var varDecl : function.varDecls){
-    programBuilder.append(geraVarDecl(varDecl));
+    geraVarDecl(programBuilder, varDecl);
   }
 
   programBuilder.append("\u005cn\u005cn");
@@ -518,7 +552,9 @@ public static void geraArgs(StringBuilder programBuilder, ArrayList<Arg> listaAr
   static final public String Tipo() throws ParseException {
  Token t;
     t = jj_consume_token(TIPOD);
-               {if (true) return t.image;}
+    if(t.image.equals("bool"))
+      {if (true) return "boolean";}
+    {if (true) return t.image;}
     throw new Error("Missing return statement in function");
   }
 
@@ -815,7 +851,6 @@ public static void geraArgs(StringBuilder programBuilder, ArrayList<Arg> listaAr
     jj_consume_token(FUNCTION);
     tipo = Tipo();
     t = jj_consume_token(ID);
-    listaArgs.add(new Arg(tipo, t.image));
     jj_consume_token(APAREN);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case TIPOD:
@@ -847,7 +882,6 @@ public static void geraArgs(StringBuilder programBuilder, ArrayList<Arg> listaAr
       jj_consume_token(FUNCTION);
       tipo = Tipo();
       t = jj_consume_token(ID);
-    listaArgs.add(new Arg(tipo, t.image));
       jj_consume_token(APAREN);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case TIPOD:

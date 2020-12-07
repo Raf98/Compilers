@@ -20,6 +20,7 @@ main
 
 	positivo := false;
 	print(positivo);
+	print(num1);
 		
 	while((num1 < 0))
 	do
@@ -30,6 +31,7 @@ main
 	num1 := (num1 + 1);
 	positivo := true;
 	print(positivo);
+	print(num1);
 	
 	if((num2 > 0))
 	{
@@ -39,6 +41,7 @@ main
 
 	positivo := false;
 	print(positivo);
+	print(num2);
 		
 	while((num2 < 0))
 	do
@@ -49,6 +52,7 @@ main
 	num2 := (num2 + 1);
 	positivo := true;
 	print(positivo);
+	print(num2);
 	
 	if((num3 > 0))
 	{
@@ -58,6 +62,7 @@ main
 	
 	positivo := false;
 	print(positivo);
+	print(num3);
 		
 	while((num3 < 0))
 	do
@@ -68,5 +73,5 @@ main
 	num3 := (num3 + 1);
 	positivo := true;
 	print(positivo);
-	
+	print(num3);	
 }

@@ -2,6 +2,10 @@ PARSER_BEGIN(Lugosi)
 import java.io.*;
 import java.util.ArrayList;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.BufferedOutputStream;
+
 class ArvoreLugosi{
   Main main;
   ArrayList<Function> functions;
@@ -218,7 +222,7 @@ public class Lugosi {
     geraCodigo(arvore, args[0]);
 }
 
-public static void geraCodigo(ArvoreLugosi prog, String arquivo){
+public static void geraCodigo(ArvoreLugosi prog, String arquivo) throws Exception{
   StringBuilder programBuilder = new StringBuilder(1000);
 
   char[] arquivoChars = arquivo.toCharArray();
@@ -236,7 +240,7 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
   programBuilder.append("\tpublic static void main(String args[]){\n");
 
   for(var varDecl : prog.main.varDecls){
-    programBuilder.append(geraVarDecl(varDecl));
+    geraVarDecl(programBuilder, varDecl);
   }
 
   programBuilder.append("\n\n");
@@ -255,15 +259,35 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo){
 
   programBuilder.append("}");
 
-  System.out.println(programBuilder.toString());
+  String programString = programBuilder.toString();
+
+  System.out.println(programString);
+
+  String currentPath = System.getProperty("user.dir");
+  //System.out.println(currentPath);
+
+  //cria pasta para arquivos .java de saida, se nao existir
+  File outputFolder = new File(currentPath + "/JavaPrograms");
+  if(!outputFolder.exists())			
+  {						
+    outputFolder.mkdir();
+  }
 
   //gera arquivo de saida
-  
+  File javaProgram = new File("JavaPrograms/" + arquivo.split("\\.")[0] + ".java");
+	FileOutputStream fileOutputStream = new FileOutputStream(javaProgram);
+	BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+
+	byte[] codeBytes = programString.getBytes();
+
+	bufferedOutputStream.write(codeBytes);
+	bufferedOutputStream.close();
+	fileOutputStream.close();
 
 }
 
-public static String geraVarDecl(VarDecl varDecl){
-  return "\t\t" + varDecl.tipo + " " + varDecl.tokenID + ";\n";
+public static void geraVarDecl(StringBuilder programBuilder, VarDecl varDecl){
+  programBuilder.append("\t\t" + varDecl.tipo + " " + varDecl.tokenID + ";\n");
 }
 
 public static void geraComando(StringBuilder programBuilder, Comando comando){
@@ -357,7 +381,7 @@ public static void geraLacoDoWhile(StringBuilder programBuilder, LacoDoWhile lac
 
   programBuilder.append("\t\t}while(");
   geraExp(programBuilder, lacoDoWhile.exp);
-  programBuilder.append(")\n");
+  programBuilder.append(");\n");
 }
 
 public static void geraReturn(StringBuilder programBuilder, Return comandoReturn){
@@ -419,7 +443,14 @@ public static void geraFator(StringBuilder programBuilder, Fator fator){
     geraChamadaDeFuncao(programBuilder, ((ChamadaDeFuncaoExp)fator).chamadaDeFuncaoExp);
   }
   else if(fator instanceof Num){
-    programBuilder.append( ((Num)fator).num );
+    float num = ((Num)fator).num;
+
+    if(num == Math.floor(num)){
+      programBuilder.append((int)num);
+    }
+    else{
+      programBuilder.append( num + "f" );
+    }
   }
   else if(fator instanceof BooleanValue){
     programBuilder.append( ((BooleanValue)fator).trueOrFalse );
@@ -436,7 +467,7 @@ public static void geraFunction(StringBuilder programBuilder, Function function)
   programBuilder.append("){\n");                       
 
   for(var varDecl : function.varDecls){
-    programBuilder.append(geraVarDecl(varDecl));
+    geraVarDecl(programBuilder, varDecl);
   }
 
   programBuilder.append("\n\n");
@@ -572,7 +603,10 @@ ArrayList<VarDecl> VarDecl (ArrayList<VarDecl> varDecls) :
 String Tipo () :
 {Token t;}
 {
-  t = <TIPOD> {return t.image;}
+  t = <TIPOD> 
+  { if(t.image.equals("bool"))
+      return "boolean";
+    return t.image;}
 }
 
 //SEQCOMANDOS -> COMANDO SEQCOMANDOS | vazio
@@ -717,7 +751,6 @@ ArrayList<Function> Func (ArrayList<Function> functions) :
 }
 {
   "function" tipo = Tipo() t = <ID>
-  { listaArgs.add(new Arg(tipo, t.image)); }
    <APAREN> (ListaArg(listaArgs))? <FPAREN> 
   <ACHAVES> VarDecl(varDecls) SeqComandos(comandos) 
   { functions.add(new Function(tipo, t.image, listaArgs, varDecls, comandos));}
@@ -734,7 +767,6 @@ ArrayList<Function> FuncL (ArrayList<Function> functions) :
 }
 {
   ( "function" tipo = Tipo() t = <ID>
-  { listaArgs.add(new Arg(tipo, t.image)); }
    <APAREN> (ListaArg(listaArgs))? <FPAREN> 
   <ACHAVES> VarDecl(varDecls) SeqComandos(comandos) 
   { functions.add(new Function(tipo, t.image, listaArgs, varDecls, comandos));}
