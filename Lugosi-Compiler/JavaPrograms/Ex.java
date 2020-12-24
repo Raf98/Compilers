@@ -6,4 +6,6 @@ class Ex{
 		teste = 9;
 		System.out.println( teste );
 	}
+
+
 }

@@ -239,22 +239,23 @@ public static void geraCodigo(ArvoreLugosi prog, String arquivo) throws Exceptio
 
   programBuilder.append("\u005ctpublic static void main(String args[]){\u005cn");
 
-  for(var varDecl : prog.main.varDecls){
+  for(VarDecl varDecl : prog.main.varDecls){
     geraVarDecl(programBuilder, varDecl);
   }
 
   programBuilder.append("\u005cn\u005cn");
 
-  for(var comando : prog.main.comandos){
+  for(Comando comando : prog.main.comandos){
     geraComando(programBuilder, comando);
   }
 
-  programBuilder.append("\u005ct}\u005cn");
+  programBuilder.append("\u005ct}\u005cn\u005cn\u005cn");
 
   //gera funcoes
 
-  for(var function : prog.functions){
+  for(Function function : prog.functions){
     geraFunction(programBuilder, function);
+    programBuilder.append("\u005cn");
   }
 
   programBuilder.append("}");
@@ -357,7 +358,7 @@ public static void geraCondicionalIF(StringBuilder programBuilder, CondicionalIF
   geraExp(programBuilder, condicionalIF.exp);
   programBuilder.append("){\u005cn");
 
-  for(var comando : condicionalIF.comandosEscopoIF){
+  for(Comando comando : condicionalIF.comandosEscopoIF){
     programBuilder.append("\u005ct");
     geraComando(programBuilder, comando);
   }
@@ -367,14 +368,14 @@ public static void geraLacoWhile(StringBuilder programBuilder, LacoWhile lacoWhi
   geraExp(programBuilder, lacoWhile.exp);
   programBuilder.append("){\u005cn");
 
-  for(var comando : lacoWhile.comandosEscopoWhile){
+  for(Comando comando : lacoWhile.comandosEscopoWhile){
     programBuilder.append("\u005ct");
     geraComando(programBuilder, comando);
   }
 }
 
 public static void geraLacoDoWhile(StringBuilder programBuilder, LacoDoWhile lacoDoWhile){
-  for(var comando : lacoDoWhile.comandosEscopoDoWhile){
+  for(Comando comando : lacoDoWhile.comandosEscopoDoWhile){
     programBuilder.append("\u005ct");
     geraComando(programBuilder, comando);
   }
@@ -417,7 +418,7 @@ public static void geraExp(StringBuilder programBuilder, Exp exp){
 public static void geraListaExp(StringBuilder programBuilder, ListaExp listaExp){
   int count = 0;
 
-  for(var itemExp : listaExp.listaExp){
+  for(Exp itemExp : listaExp.listaExp){
     geraExp(programBuilder, itemExp);
 
     ++count;
@@ -466,13 +467,13 @@ public static void geraFunction(StringBuilder programBuilder, Function function)
   geraArgs(programBuilder, function.listaArgs);
   programBuilder.append("){\u005cn");
 
-  for(var varDecl : function.varDecls){
+  for(VarDecl varDecl : function.varDecls){
     geraVarDecl(programBuilder, varDecl);
   }
 
   programBuilder.append("\u005cn\u005cn");
 
-  for(var comando : function.comandos){
+  for(Comando comando : function.comandos){
     geraComando(programBuilder, comando);
   }
 
@@ -482,7 +483,7 @@ public static void geraFunction(StringBuilder programBuilder, Function function)
 public static void geraArgs(StringBuilder programBuilder, ArrayList<Arg> listaArgs){
   int count = 0;
 
-  for(var arg : listaArgs){
+  for(Arg arg : listaArgs){
     programBuilder.append(arg.tipo + " " + arg.tokenID);
 
     ++count;

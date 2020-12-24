@@ -1,0 +1,111 @@
+PARSER_BEGIN(Lugosi)
+import java.io.*;
+public class Lugosi {
+
+  public static void main(String args[]) throws ParseException,IOException {
+    
+ Lugosi analisador = new Lugosi(new FileInputStream(args[0]));
+ analisador.Lugosi();
+  }
+
+}
+
+PARSER_END(Lugosi)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  <MAIN: "main">
+| <ACHAVES: "{">
+| <FCHAVES: "}">
+}
+
+TOKEN: 
+{
+  <APAREN: "(">
+| <FPAREN: ")">
+
+| <PTOVIRGULA: ";">
+| <ATRIB: ":=">
+| <VIRGULA: ",">
+
+| <ADD: "+">
+| <SUB: "-">
+| <MULT: "*">
+| <DIV: "/">
+
+| <AND: "&&">
+| <OR: "||">
+
+| <MENOR: "<">
+| <MAIOR: ">">
+| <IGUAL: "==">
+
+| <TIPOD: "bool" | "int">
+
+| <PRESV: "var" | "print" | "return" | "function" | "if" | "else" 
+	| "do" | "while">
+| <BVAL: "true" | "false">
+}
+
+
+
+
+
+TOKEN :
+{
+   <NUM : (["0"-"9"])+ ("."(["0"-"9"])+)?("E"("+"|"-")?(["0"-"9"])+)?>
+ | <ID: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"])*
+ ("_"(["a"-"z","A"-"Z","0"-"9"])+)*>
+
+}
+
+
+
+void Lugosi () :
+{Token t;}
+{
+
+(
+  <MAIN> { System.out.println("Palavra reservada: main");}
+| t=<PRESV> { System.out.println("Palavra reservada: " + t.image);}
+| t=<BVAL> { System.out.println("Valor booleano: " + t.image);}
+| t =<TIPOD> { System.out.println("Tipo de dado: " + t.image);}
+| <ACHAVES> { System.out.println("Abre chaves: {");}
+| <FCHAVES> { System.out.println("Fecha chaves: }");}
+| t=<ID> { System.out.println("Identificador: "+ t.image);}
+| t=<NUM> { System.out.println("Número: "+ t.image);}
+| <VIRGULA> { System.out.println("Vírgula: ,");}
+| <PTOVIRGULA> { System.out.println("Ponto e vírgula: ;");}
+| <ATRIB> { System.out.println("Atribuição: :=");}
+| <APAREN> { System.out.println("Abre parênteses: (");}
+| <FPAREN> { System.out.println("Fecha parênteses: )");}
+
+| <ADD> { System.out.println("Sinal de adição: +");}
+| <SUB> { System.out.println("Sinal de subtração: -");}
+| <MULT> { System.out.println("Sinal de multiplicação: *");}
+| <DIV> { System.out.println("Sinal de divisão: /");}
+
+| <AND> { System.out.println("Sinal de operação binária AND: &&");}
+| <OR> { System.out.println("Sinal de operação binária OR: ||");}
+
+| <MENOR> { System.out.println("Sinal de comparação menor: <");}
+| <MAIOR> { System.out.println("Sinal de comparação maior: >");}
+| <IGUAL> { System.out.println("Sinal de comparação igual: ==");}
+)*
+<EOF> 
+
+
+}
+
+
+
+
+

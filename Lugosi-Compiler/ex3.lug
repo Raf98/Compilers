@@ -8,7 +8,7 @@ main
 	var float Area_Trapezio; 
 
 	B := 2.98E-4;
-	b := 4E+13;
+	b := 4E+3;
 	h := 9E+7;
 
 	Area_Trapezio := (((B+b)/2)*h);
@@ -20,6 +20,8 @@ main
 	calcAreaQuadrado(h);
 
 	ret := calcAreaRetangulo(b, h);
+
+	print(ret);
 
 	i := 1.5;
 

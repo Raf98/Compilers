@@ -63,4 +63,6 @@ class Ex2{
 		System.out.println( positivo );
 		System.out.println( num3 );
 	}
+
+
 }

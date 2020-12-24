@@ -1,0 +1,48 @@
+main
+{
+	var int B;
+	var int b;
+	var int h;
+	var int i;
+	var int ret;
+	var int Area_Trapezio; 
+
+	B := 2.98E-4;
+	b := 4E+13;
+	h := 9E+7;
+
+	Area_Trapezio := (((B+b)/2)*h);
+	
+	print(Area_Trapezio);
+
+	calcAreaQuadrado(B);
+	calcAreaQuadrado(b);
+	calcAreaQuadrado(h);
+
+	ret := calcAreaRetangulo(b, h);
+
+	i := 1;
+
+	do
+	{
+		print(calcAreaQuadrado(i));
+		print(calcAreaRetangulo(i));
+		i := (i + 1);
+	}
+	while((i < 10))
+
+}
+
+function float calcAreaQuadrado(float lado)
+{
+	var float area;
+	area := (lado * lado);
+	return area; 
+}
+
+function float calcAreaRetangulo(float base, float altura)
+{
+	var float area3;
+	area3 := (base * altura);
+	return area3; 
+}

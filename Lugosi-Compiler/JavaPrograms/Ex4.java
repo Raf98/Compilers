@@ -6,6 +6,8 @@ class Ex4{
 		num = 9;
 		System.out.println( fibonacci( num ) );
 	}
+
+
 	public static int fibonacci(int num){
 
 
@@ -19,4 +21,5 @@ class Ex4{
 
 		return ( fibonacci( ( num - 1 ) ) + fibonacci( ( num - 2 ) ) );
 	}
+
 }

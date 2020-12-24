@@ -1,0 +1,271 @@
+PARSER_BEGIN(Lugosi)
+import java.io.*;
+public class Lugosi {
+
+  public static void main(String args[]) throws ParseException,IOException {
+    
+ Lugosi analisador = new Lugosi(new FileInputStream(args[0]));
+ analisador.Lugosi();
+  }
+
+}
+
+PARSER_END(Lugosi)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  <MAIN: "main">
+| <ACHAVES: "{">
+| <FCHAVES: "}">
+}
+
+TOKEN: 
+{
+  <APAREN: "(">
+| <FPAREN: ")">
+
+| <PTOVIRGULA: ";">
+| <ATRIB: ":=">
+| <VIRGULA: ",">
+
+| <ADD: "+">
+| <SUB: "-">
+| <MULT: "*">
+| <DIV: "/">
+
+| <AND: "&&">
+| <OR: "||">
+
+| <MENOR: "<">
+| <MAIOR: ">">
+| <IGUAL: "==">
+
+| <TIPOD: "bool" | "int" | "void" | "float">
+
+/*| <PRESV: "var" | "print" | "return" | "function" | "if" 
+	| "do" | "while">*/
+| <VAR: "var">
+| <PRINT: "print">
+| <RETURN: "return">
+| <FUNCTION: "function">
+| <IF: "if">
+| <DO: "do">
+| <WHILE: "while">
+
+| <BVAL: "true" | "false">
+}
+
+
+
+
+
+TOKEN :
+{
+   <NUM : (["0"-"9"])+ ("."(["0"-"9"])+)?("E"("+"|"-")?(["0"-"9"])+)?>
+ | <ID: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"])*
+ ("_"(["a"-"z","A"-"Z","0"-"9"])+)*>
+
+}
+
+
+
+void Lugosi () :
+{Token t;}
+{
+/*
+(
+  <MAIN> { System.out.println("Palavra reservada: main");}
+//| t=<PRESV> { System.out.println("Palavra reservada: " + t.image);}
+
+| <VAR> { System.out.println("Palavra reservada: var");}
+| <PRINT> { System.out.println("Palavra reservada: print");}
+| <RETURN> { System.out.println("Palavra reservada: return");}
+| <FUNCTION> { System.out.println("Palavra reservada: function");}
+| <IF> { System.out.println("Palavra reservada: if");}
+| <DO> { System.out.println("Palavra reservada: do");}
+| <WHILE> { System.out.println("Palavra reservada: while");}
+
+| t=<BVAL> { System.out.println("Valor booleano: " + t.image);}
+| t =<TIPOD> { System.out.println("Tipo de dado: " + t.image);}
+| <ACHAVES> { System.out.println("Abre chaves: {");}
+| <FCHAVES> { System.out.println("Fecha chaves: }");}
+| t=<ID> { System.out.println("Identificador: "+ t.image);}
+| t=<NUM> { System.out.println("Número: "+ t.image);}
+| <VIRGULA> { System.out.println("Vírgula: ,");}
+| <PTOVIRGULA> { System.out.println("Ponto e vírgula: ;");}
+| <ATRIB> { System.out.println("Atribuição: :=");}
+| <APAREN> { System.out.println("Abre parênteses: (");}
+| <FPAREN> { System.out.println("Fecha parênteses: )");}
+
+| <ADD> { System.out.println("Sinal de adição: +");}
+| <SUB> { System.out.println("Sinal de subtração: -");}
+| <MULT> { System.out.println("Sinal de multiplicação: *");}
+| <DIV> { System.out.println("Sinal de divisão: /");}
+
+| <AND> { System.out.println("Sinal de operação binária AND: &&");}
+| <OR> { System.out.println("Sinal de operação binária OR: ||");}
+
+| <MENOR> { System.out.println("Sinal de comparação menor: <");}
+| <MAIOR> { System.out.println("Sinal de comparação maior: >");}
+| <IGUAL> { System.out.println("Sinal de comparação igual: ==");}
+)*
+<EOF> 
+*/
+
+//Parser
+
+// LUGOSI -> MAIN FUNC?
+  Main() (Func())? <EOF> 
+
+}
+
+//MAIN -> "main" "{" VARDECL SEQCOMANDOS "}"
+void Main () :
+{}
+{
+
+  <MAIN> <ACHAVES> VarDecl() SeqComandos() <FCHAVES> 
+
+}
+
+//VARDECL -> "var" TIPO TOKEN_id ";" VARDECL | vazio
+void VarDecl () :
+{}
+{
+//tirar recursao a esquerda
+  ("var" Tipo() <ID> VarDecl() <PTOVIRGULA> VarDecl())?
+}
+
+
+//TIPO -> "int" | "bool" | "float" | "void"
+void Tipo () :
+{}
+{
+  <TIPOD>
+}
+
+//SEQCOMANDOS -> COMANDO SEQCOMANDOS | vazio
+void SeqComandos () :
+{}
+{
+  (Comando() SeqComandos())?
+}
+
+/*COMANDO -> TOKEN_id TOKEN_idL
+| "if" "(" EXP ")" "{" SEQCOMANDOS "}" ";"
+| "while" "(" EXP ")" "do" "{" SEQCOMANDOS "}"
+| "do" "{" SEQCOMANDOS "}" "while" "(" EXP ")"
+| "return" EXP ";"
+| "print" "(" EXP ")" ";"
+*/
+void Comando () :
+{}
+{
+  ( <ID> TokenIDL() 
+  | "if" <APAREN> Exp() <FPAREN> <ACHAVES> SeqComandos() <FCHAVES> <PTOVIRGULA>
+  | "while" <APAREN> Exp() <FPAREN> "do" <ACHAVES> SeqComandos() <FCHAVES> 
+  | "do" <ACHAVES> SeqComandos() <FCHAVES> "while" <APAREN> Exp() <FPAREN>
+  | "return" Exp() <PTOVIRGULA>
+  | "print" <APAREN> Exp() <FPAREN> <PTOVIRGULA> )
+}
+
+//TOKEN_idL -> ":=" EXP ";" | "(" LISTAEXP? ")" ";"
+void TokenIDL () :
+{}
+{
+  (<ATRIB> Exp() <PTOVIRGULA> | <APAREN> (ListaExp())? <FPAREN> <PTOVIRGULA>) 
+}
+
+//EXP -> "(" EXP OP EXP ")" | FATOR
+void Exp () :
+{}
+{
+  ( <APAREN> Exp() Op() Exp() <FPAREN> | Fator() )
+}
+
+/*FATOR -> TOKEN_id TOKEN_idL2 
+| TOKEN_numliteral | "true" | "false"
+*/
+void Fator () :
+{}
+{
+  ( <ID> TokenIDL2()
+  | <NUM> | <BVAL> )
+}
+
+//TOKEN_idL2 -> "(" LISTAEXP? ")" | vazio
+void TokenIDL2 () :
+{}
+{
+  ( <APAREN> (ListaExp())? <FPAREN> )?
+}
+
+//OP -> "+" | "-" | "*" | "/" | "&&" | "||" | "<" | ">" | "=="
+void Op () :
+{}
+{
+  ( <ADD> | <SUB> | <MULT> | <DIV>
+  | <AND> | <OR>
+  | <MENOR> | <MAIOR> | <IGUAL>)
+}
+
+//LISTAEXP -> EXP LISTAEXPL
+void ListaExp () :
+{}
+{
+  Exp() ListaExpL()
+}
+
+//LISTAEXPL -> "," EXP LISTAEXPL | vazio
+void ListaExpL () :
+{}
+{
+  ( <VIRGULA> Exp() ListaExpL() )?
+}
+
+//FUNC -> "function" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}" FUNCL
+void Func () :
+{}
+{
+  "function" <TIPOD> <ID> <APAREN> (ListaArg())? <FPAREN> <ACHAVES> VarDecl() SeqComandos() <FCHAVES> FuncL()
+}
+
+//FUNCL -> "function" TIPO TOKEN_id "(" LISTAARG? ")" "{" VARDECL SEQCOMANDOS "}" FUNCL | vazio
+void FuncL () :
+{}
+{
+  ( "function" <TIPOD> <ID> <APAREN> (ListaArg())? <FPAREN> <ACHAVES> VarDecl() SeqComandos() <FCHAVES> FuncL() )?
+}
+
+//LISTAARG -> TIPO TOKEN_id LISTAARGL
+void ListaArg () :
+{}
+{
+  <TIPOD> <ID> ListaArgL()
+}
+
+//LISTAARGL -> "," TIPO TOKEN_id LISTAARGL | vazio
+void ListaArgL () :
+{}
+{
+  ( <VIRGULA> <TIPOD> <ID> ListaArgL())?
+}
+
+
+
+
+
+
+
+
+
+
+

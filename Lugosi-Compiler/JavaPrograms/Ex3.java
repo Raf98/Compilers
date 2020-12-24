@@ -9,7 +9,7 @@ class Ex3{
 
 
 		B = 2.98E-4f;
-		b = 2147483647;
+		b = 4000;
 		h = 90000000;
 		Area_Trapezio = ( ( ( B + b ) / 2 ) * h );
 		System.out.println( Area_Trapezio );
@@ -17,6 +17,7 @@ class Ex3{
 		calcAreaQuadrado( b );
 		calcAreaQuadrado( h );
 		ret = calcAreaRetangulo( b, h );
+		System.out.println( ret );
 		i = 1.5f;
 		do
 		{
@@ -27,6 +28,8 @@ class Ex3{
 
 
 	}
+
+
 	public static float calcAreaQuadrado(float lado){
 		float area;
 
@@ -34,6 +37,7 @@ class Ex3{
 		area = ( lado * lado );
 		return area;
 	}
+
 	public static float calcAreaRetangulo(float base, float altura){
 		float area3;
 
@@ -41,4 +45,5 @@ class Ex3{
 		area3 = ( base * altura );
 		return area3;
 	}
+
 }
